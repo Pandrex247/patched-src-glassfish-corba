@@ -322,10 +322,19 @@ public final class Utility {
                     "expected Type.");
             }
 
-            if (expectedTypeClassLoader != null) {
-                loadedClass = expectedTypeClassLoader.loadClass(className);
-            } else {
-                loadedClass = ORBClassLoader.loadClass(className);
+            try {
+                if (expectedTypeClassLoader != null) {
+                    loadedClass = expectedTypeClassLoader.loadClass(className);
+                } else {
+                    loadedClass = ORBClassLoader.loadClass(className);
+                }
+            }
+            catch (ClassNotFoundException cnfe){
+                wrapper.classNotFound(className);
+                // ClassNotFoundException is only really a problem if we have no loadedClass already
+                if (loadedClass == null){
+                    throw cnfe;
+                }
             }
         }
 
