@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
+// Portions Copyright [2016] [C2B2 Consulting Limited]
 package com.sun.corba.ee.impl.oa.toa ;
 
 import java.util.Map ;
@@ -102,7 +102,9 @@ public class TOAFactory implements ObjectAdapterFactory
         this.orb = orb ;
         tom = new TransientObjectManager( orb ) ;
         codebaseToTOA = new HashMap<String,TOAImpl>() ;
-        orb.mom().registerAtRoot( this ) ;
+        if (orb.mom() != null) {
+            orb.mom().registerAtRoot( this ) ;
+        }
     }
 
     public void shutdown( boolean waitForCompletion )
