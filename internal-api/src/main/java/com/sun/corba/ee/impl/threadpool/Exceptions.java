@@ -37,10 +37,12 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.threadpool;
 
 import com.sun.corba.ee.spi.logex.stdcorba.StandardLogger;
+import com.sun.corba.ee.spi.threadpool.ThreadPool;
 import org.glassfish.pfl.basic.logex.Chain;
 import org.glassfish.pfl.basic.logex.ExceptionWrapper;
 import org.glassfish.pfl.basic.logex.Log;
@@ -74,7 +76,7 @@ public interface Exceptions {
     @Message( "Join was interrrupted on thread {0} while closing ThreadPool {1}" )
     @Log( id = TP_START + 0 )
     void interruptedJoinCallWhileClosingThreadPool(
-        @Chain InterruptedException exc, Thread wt, ThreadPoolImpl aThis);
+        @Chain InterruptedException exc, Thread wt, ThreadPool aThis);
 
     @Message( "Worker Thread {0} has been created with ClassLoader {1}" )
     @Log( id = TP_START + 0, level=LogLevel.FINE )
@@ -123,12 +125,12 @@ public interface Exceptions {
         + " requesting work from work queue {1}" )
     @Log( id = TP_START + 9, level=LogLevel.FINE )
     void workerThreadThrowableFromRequestWork(
-        @Chain Throwable t, Thread aThis, String name);
+        @Chain Throwable t, ThreadPool aThis, String name);
 
     @Message( "Worker thread {0} caught unexpected throwable" )
     @Log( id = TP_START + 10 )
     void workerThreadCaughtUnexpectedThrowable(
-        @Chain Throwable e, Thread aThis);
+        @Chain Throwable e, ThreadPool aThis);
 
 // ThreadPoolManagerImpl
     static final int TPM_START = TP_START + EXCEPTIONS_PER_CLASS ;
