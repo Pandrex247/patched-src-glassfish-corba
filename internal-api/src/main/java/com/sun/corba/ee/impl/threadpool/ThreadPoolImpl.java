@@ -22,7 +22,12 @@ import com.sun.corba.ee.spi.threadpool.WorkQueue;
 import java.io.IOException;
 import java.security.AccessController;
 import java.security.PrivilegedAction;
+import java.util.Comparator;
+import java.util.Set;
 import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.ConcurrentSkipListSet;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -104,28 +109,27 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
     {
         queue = new WorkQueueImpl(this);
         name = threadpoolName;
-        // +++ FIXME TODO remove max()
-        threadPool = new ThreadPoolExecutor(5, Math.max(5, maxSize), timeout, TimeUnit.MILLISECONDS, 
+        this.tg = tg;
+        this.classLoader = defaultClassLoader;
+        minSize = Math.max(minSize, 0);
+        maxSize = Math.max(DEFAULT_MINIMUM_THREAD_POOL, maxSize);
+        
+        threadPool = new ThreadPoolExecutor(maxSize, maxSize, timeout, TimeUnit.MILLISECONDS, 
                 new LinkedBlockingQueue<Runnable>(maxSize * 100), 
-                new ORBThreadFactory(tg, defaultClassLoader));
+                new ORBThreadFactory(name, tg, defaultClassLoader, false));
         threadPool.allowCoreThreadTimeOut(true);
+        for(int ii = 0; ii < minSize; ++ii) {
+            threadPool.prestartCoreThread();
+        }
         // TODO register with gmbal
     }
 
     
     static class ORBThreadFactory implements ThreadFactory {
-        private static final AtomicInteger poolNumber = new AtomicInteger(1);
-        private final ThreadGroup group;
-        private final AtomicInteger threadNumber = new AtomicInteger(1);
-        private final String namePrefix;
-        private final ClassLoader classLoader;
-
-        ORBThreadFactory(ThreadGroup group, ClassLoader classLoader) {
+        ORBThreadFactory(String name, ThreadGroup group, ClassLoader classLoader, boolean isLongRunning) {
             this.group = group;
             this.classLoader = classLoader;
-            namePrefix = "orb-threadpool-"
-                    + poolNumber.getAndIncrement()
-                    + "-thread-";
+            namePrefix = String.format("orb-%s (pool #%d)%s: worker", name, poolNumber.getAndIncrement(), isLongRunning? " - (long-running)" : "");
         }
 
         @Override
@@ -143,9 +147,7 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
         }
         
         private Thread newThreadHelper(Runnable r, ClassLoader cl) {
-            Thread t = new Thread(group, r,
-                    namePrefix + threadNumber.getAndIncrement(),
-                    0);
+            Thread t = new Thread(group, r, String.format("%s-%d", namePrefix, threadNumber.getAndIncrement()), 0);
             t.setContextClassLoader(cl);
             if (t.isDaemon()) {
                 t.setDaemon(false);
@@ -155,30 +157,57 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
             }
             return t;            
         }
+        
+        private final ThreadGroup group;
+        private final AtomicInteger threadNumber = new AtomicInteger(1);
+        private static final AtomicInteger poolNumber = new AtomicInteger(1);
+        private final String namePrefix;
+        private final ClassLoader classLoader;
     }
     
     
-    @Override
-    void submit(final Work item) {
-        threadPool.submit(new Runnable() {
-            @Override
-            public void run() {
-                long start = System.currentTimeMillis();
-                try {
+    private class TaskRunner implements Runnable {
+        public TaskRunner(Work item, boolean isLongRunning) {
+            this.item = item;
+            this.isLongRunning = isLongRunning;
+        }
+
+        @Override
+        public void run() {
+            long start = System.currentTimeMillis();
+            try {
+                if(!isLongRunning) {
                     queue.incrDequeue(item);
-                    item.doWork();
                 }
-                catch(Throwable t) {
-                        Exceptions.self.workerThreadThrowableFromRequestWork(t, 
-                                ThreadPoolImpl.this, 
-                                queue.getName());
-                } finally {
-                    ThreadStateValidator.checkValidators();
+                item.doWork();
+            } catch (Throwable t) {
+                Exceptions.self.workerThreadThrowableFromRequestWork(t,
+                        ThreadPoolImpl.this,
+                        queue.getName());
+            } finally {
+                ThreadStateValidator.checkValidators();
+                if(!isLongRunning) {
                     long elapsedTime = System.currentTimeMillis() - start;
                     totalTimeTaken.addAndGet(elapsedTime);
-                }                
+                }
             }
-        });
+        }
+        
+        private final Work item;
+        private final boolean isLongRunning;
+    }
+
+    
+    @Override
+    void submit(final Work item, boolean isLongRunning) {
+        ExecutorService task;
+        if(isLongRunning) {
+            task = Executors.newSingleThreadExecutor(new ORBThreadFactory(name, tg, classLoader, true));
+            longRunningTasks.add(task);
+        } else {
+            task = threadPool;
+        }
+        task.submit(new TaskRunner(item, isLongRunning));
     }
 
     @Override
@@ -266,6 +295,9 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
     @Override
     public void close() throws IOException {
         threadPool.shutdown();
+        for(ExecutorService e : longRunningTasks) {
+            e.shutdown();
+        }
     }
     
     
@@ -295,10 +327,19 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
     private final ThreadPoolExecutor threadPool;
     private final WorkQueueImpl queue;
     private final String name;
-    
+    private final ThreadGroup tg;
+    private final ClassLoader classLoader;
+    private final Set<ExecutorService> longRunningTasks = new ConcurrentSkipListSet<ExecutorService>(new Comparator<ExecutorService>() {
+        @Override
+        public int compare(ExecutorService o1, ExecutorService o2) {
+            return Integer.compare(System.identityHashCode(o1), System.identityHashCode(o2));
+        }
+    });
+
     // Running aggregate of the time taken in millis to execute work items
     // processed by the threads in the threadpool
     private final AtomicLong totalTimeTaken = new AtomicLong(0);
 
     public static final int DEFAULT_INACTIVITY_TIMEOUT = 120000;
+    public static final int DEFAULT_MINIMUM_THREAD_POOL = 10;
 }

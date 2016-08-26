@@ -24,6 +24,6 @@ import java.util.concurrent.BlockingQueue;
  * @author lprimak
  */
 abstract class AbstractThreadPool implements ThreadPool {
-   abstract void submit(Work item); 
+   abstract void submit(Work item, boolean isLongRunning); 
    abstract BlockingQueue<Runnable> getQueue();
 }
