@@ -37,8 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-
-package com.sun.corba.ee.impl.transport;
+// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
 
 import com.sun.corba.ee.impl.encoding.CDRInputObject;
 import com.sun.corba.ee.impl.orb.ORBVersionImpl;
@@ -88,6 +87,8 @@ import java.util.Set;
 
 import static com.meterware.simplestub.Stub.createStrictStub;
 import static com.meterware.simplestub.Stub.createStub;
+import java.net.InetSocketAddress;
+import java.net.SocketAddress;
 
 public class TransportTestBase {
     private OrbFake orb = createStrictStub(OrbFake.class);
@@ -437,6 +438,11 @@ public class TransportTestBase {
             return numToWrite;
         }
 
+        @Override
+        public SocketAddress getLocalAddress() throws IOException {
+            return InetSocketAddress.createUnresolved("localhost", 1);
+        }
+        
         @Override
         protected void implConfigureBlocking(boolean block) throws IOException {
             if (failConfigureBlocking)

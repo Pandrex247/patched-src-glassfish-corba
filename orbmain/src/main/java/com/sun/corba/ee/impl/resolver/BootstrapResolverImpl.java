@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.resolver ;
 
@@ -73,7 +74,7 @@ public class BootstrapResolverImpl implements Resolver {
         ObjectKey okey = new ObjectKeyImpl(orb.getWireObjectKeyTemplate(),
                                            new ObjectIdImpl(initialKey));
 
-        IIOPAddress addr = IIOPFactories.makeIIOPAddress( host, port ) ;
+        IIOPAddress addr = IIOPFactories.makeIIOPAddressLocalServer(host, port ) ;
         IIOPProfileTemplate ptemp = IIOPFactories.makeIIOPProfileTemplate(
             orb, GIOPVersion.V1_0, addr);
             

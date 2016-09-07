@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.spi.ior.iiop ;
 
@@ -56,7 +57,6 @@ import com.sun.corba.ee.spi.orb.ORB ;
 
 import com.sun.corba.ee.spi.folb.ClusterInstanceInfo ;
 
-import com.sun.corba.ee.impl.encoding.MarshalInputStream ;
 
 import com.sun.corba.ee.impl.ior.iiop.IIOPAddressImpl ;
 import com.sun.corba.ee.impl.ior.iiop.CodeSetsComponentImpl ;
@@ -70,7 +70,7 @@ import com.sun.corba.ee.impl.ior.iiop.IIOPProfileTemplateImpl ;
 import com.sun.corba.ee.impl.ior.iiop.RequestPartitioningComponentImpl ;
 import com.sun.corba.ee.impl.ior.iiop.LoadBalancingComponentImpl ;
 import com.sun.corba.ee.impl.ior.iiop.ClusterInstanceInfoComponentImpl ;
-import com.sun.corba.ee.spi.misc.ORBConstants;
+import com.sun.corba.ee.impl.ior.iiop.IIOPAddressImplLocalServer;
 import com.sun.corba.ee.spi.misc.ORBConstants;
 
 import org.omg.IOP.TAG_ALTERNATE_IIOP_ADDRESS ;
@@ -291,6 +291,17 @@ public abstract class IIOPFactories {
     public static IIOPAddress makeIIOPAddress( String host, int port ) 
     {
         return new IIOPAddressImpl( host, port ) ;
+    }
+    
+    /**
+     * Overridable on Tx (Thread-local) basis
+     * 
+     * @param host
+     * @param port
+     * @return IIOP Address
+     */
+    public static IIOPAddress makeIIOPAddressLocalServer(String host, int port) {
+        return new IIOPAddressImplLocalServer(host, port);
     }
 
     public static IIOPAddress makeIIOPAddress( InputStream is ) 
