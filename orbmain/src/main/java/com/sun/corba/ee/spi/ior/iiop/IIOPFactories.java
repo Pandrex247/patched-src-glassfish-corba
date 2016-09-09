@@ -306,6 +306,12 @@ public abstract class IIOPFactories {
 
     public static IIOPAddress makeIIOPAddress( InputStream is ) 
     {
-        return new IIOPAddressImpl( is ) ;
+        IIOPAddressImpl impl = new IIOPAddressImpl(is);
+        if(impl.isLocalServer()) {
+            return new IIOPAddressImplLocalServer(impl);
+        }
+        else {
+            return impl;
+        }
     }
 }

@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.ior.iiop;
 
@@ -163,7 +164,7 @@ public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase
         byte major = istr.read_octet() ;
         byte minor = istr.read_octet() ;
         giopVersion = GIOPVersion.getInstance( major, minor ) ;
-        primary = new IIOPAddressImpl( istr ) ;
+        primary = IIOPFactories.makeIIOPAddress(istr);
         orb = (ORB)(istr.orb()) ;
         // Handle any tagged components (if applicable)
         if (minor > 0) 

@@ -202,7 +202,7 @@ public class IIOPProfileImpl extends IdentifiableBase implements IIOPProfile
         // First, read all of the IIOP IOR data
         GIOPVersion version = new GIOPVersion() ;
         version.read( istr ) ;
-        IIOPAddress primary = new IIOPAddressImpl( istr ) ;
+        IIOPAddress primary = IIOPFactories.makeIIOPAddress(istr);
         byte[] key = EncapsulationUtility.readOctets( istr ) ;
 
         ObjectKey okey = orb.getObjectKeyFactory().create( key ) ;
@@ -325,16 +325,16 @@ public class IIOPProfileImpl extends IdentifiableBase implements IIOPProfile
 
             final int port = proftemp.getPrimaryAddress().getPort();
             final IIOPAddress primary = proftemp.getPrimaryAddress();
-            IIOPAddressImplLocalServer addrImpl = null;
-            if(primary instanceof IIOPAddressImplLocalServer) {
-                 addrImpl = (IIOPAddressImplLocalServer)primary;
+            IIOPAddressBase addrBase = null;
+            if(primary instanceof IIOPAddressBase) {
+                 addrBase = (IIOPAddressBase)primary;
             }
-            final String host = addrImpl != null? addrImpl.getHostFromDelegate() : primary.getHost() ;
+            final String host = primary.getHost();
             final int scid = oktemp.getSubcontractId() ;
             final int sid = oktemp.getServerId() ;
             computingIsLocal( host, scid, sid, port ) ;
 
-            final boolean isLocalHost = orb.isLocalHost( host ) ;
+            final boolean isLocalHost = orb.isLocalHost( host ) || (addrBase != null? addrBase.isLocalServer() : false);
             final boolean isLocalServerId = (sid == -1) || orb.isLocalServerId( scid, sid ) ;
             final boolean isLocalServerPort = orb.getLegacyServerSocketManager().legacyIsLocalServerPort( port ) ;
             isLocalResults( isLocalHost, isLocalServerId, isLocalServerPort ) ;

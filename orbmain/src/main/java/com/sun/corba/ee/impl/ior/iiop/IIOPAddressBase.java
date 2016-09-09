@@ -37,12 +37,10 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.ior.iiop ;
 
-import org.omg.CORBA.BAD_PARAM ;
-
-import org.omg.CORBA_2_3.portable.InputStream ;
 import org.omg.CORBA_2_3.portable.OutputStream ;
 
 import com.sun.corba.ee.spi.ior.iiop.IIOPAddress ;
@@ -71,14 +69,21 @@ abstract class IIOPAddressBase implements IIOPAddress
             return value + 65536 ;
         return value ;
     }
+    
+    protected boolean isLocalServer() {
+        return false;
+    }
 
+    @Override
     public void write( OutputStream os )
     {
+        os.write_boolean(isLocalServer());
         os.write_string( getHost() ) ;
         int port = getPort() ;
         os.write_short( intToShort( port ) ) ;
     }
 
+    @Override
     public boolean equals( Object obj )
     {
         if (!(obj instanceof IIOPAddress))
@@ -90,13 +95,15 @@ abstract class IIOPAddressBase implements IIOPAddress
             (getPort() == other.getPort()) ;
     }
 
+    @Override
     public int hashCode()
     {
         return getHost().hashCode() ^ getPort() ;
     }
 
+    @Override
     public String toString()
     {
-        return "IIOPAddress[" + getHost() + "," + getPort() + "]" ;
+        return String.format("IIOPAddress%s[%s, %d]", isLocalServer()? "(local)" : "", getHost(), getPort());
     }
 }

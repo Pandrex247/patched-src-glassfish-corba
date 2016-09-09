@@ -28,7 +28,10 @@ public class IIOPAddressImplLocalServer extends IIOPAddressBase {
     public IIOPAddressImplLocalServer(String host, int port) {
         delegate = new IIOPAddressImpl(host, port);
     }
-    
+
+    public IIOPAddressImplLocalServer(IIOPAddressImpl delegate) {
+        this.delegate = delegate;
+    }
     
     @Override
     public String getHost() {
@@ -44,18 +47,18 @@ public class IIOPAddressImplLocalServer extends IIOPAddressBase {
     public int getPort() {
         return delegate.getPort();
     }
-    
-    String getHostFromDelegate() {
-        return delegate.getHost();
-    }
-    
-    
+        
     public static void setHostOverride(String host) {
         localHostOverride.set(host);
     }
     
     public static void removeHostOverride() {
         localHostOverride.set(empty);
+    }
+
+    @Override
+    protected boolean isLocalServer() {
+        return true;
     }
     
     
