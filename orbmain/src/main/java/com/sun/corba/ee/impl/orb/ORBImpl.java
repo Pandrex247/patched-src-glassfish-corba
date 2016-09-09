@@ -155,6 +155,9 @@ import com.sun.corba.ee.impl.javax.rmi.CORBA.Util;
 import com.sun.corba.ee.impl.misc.ByteArrayWrapper;
 import com.sun.corba.ee.spi.trace.OrbLifeCycle;
 import com.sun.corba.ee.spi.trace.Subcontract;
+import java.net.NetworkInterface;
+import java.net.SocketException;
+import java.util.Enumeration;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.locks.ReadWriteLock;
 import org.glassfish.pfl.basic.algorithm.ObjectUtility;
@@ -1750,7 +1753,26 @@ public class ORBImpl extends com.sun.corba.ee.spi.orb.ORB
     public boolean isLocalHost( String hostName ) 
     {
         return hostName.equals( configData.getORBServerHost() ) ||
-            hostName.equals( getLocalHostName() ) ;
+            hostName.equals( getLocalHostName() ) || getAllLocalAddresses().contains(hostName);
+    }
+    
+    private final List<String> localAddrs = new ArrayList<String>();
+    
+    private List<String> getAllLocalAddresses() {
+        if(localAddrs.isEmpty()) {
+            try {
+                Enumeration<NetworkInterface> ni = NetworkInterface.getNetworkInterfaces();
+                while (ni.hasMoreElements()) {
+                    Enumeration<InetAddress> addresses = ni.nextElement().getInetAddresses();
+                    while (addresses.hasMoreElements()) {
+                        localAddrs.add(addresses.nextElement().getHostAddress());
+                    }
+                }
+            } catch (SocketException ex) {
+                // ignore
+            }
+        }
+        return localAddrs;
     }
 
     @Subcontract

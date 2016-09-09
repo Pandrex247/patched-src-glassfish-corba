@@ -304,10 +304,14 @@ public abstract class IIOPFactories {
         return new IIOPAddressImplLocalServer(host, port);
     }
 
-    public static IIOPAddress makeIIOPAddress( InputStream is ) 
+    public static IIOPAddress makeIIOPAddress(InputStream is) {
+        return new IIOPAddressImpl(is);
+    }
+    
+    public static IIOPAddress makeIIOPAddress( InputStream is, ORB orb ) 
     {
         IIOPAddressImpl impl = new IIOPAddressImpl(is);
-        if(impl.isLocalServer()) {
+        if(orb.isLocalHost(impl.getHost())) {
             return new IIOPAddressImplLocalServer(impl);
         }
         else {

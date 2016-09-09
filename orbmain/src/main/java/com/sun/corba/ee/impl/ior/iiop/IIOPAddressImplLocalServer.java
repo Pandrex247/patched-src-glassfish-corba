@@ -56,11 +56,6 @@ public class IIOPAddressImplLocalServer extends IIOPAddressBase {
         localHostOverride.set(empty);
     }
 
-    @Override
-    protected boolean isLocalServer() {
-        return true;
-    }
-    
     
     private final IIOPAddressImpl delegate;
     static private final String empty = "";

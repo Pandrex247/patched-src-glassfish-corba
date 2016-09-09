@@ -164,7 +164,7 @@ public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase
         byte major = istr.read_octet() ;
         byte minor = istr.read_octet() ;
         giopVersion = GIOPVersion.getInstance( major, minor ) ;
-        primary = IIOPFactories.makeIIOPAddress(istr);
+        primary = IIOPFactories.makeIIOPAddress(istr, orb);
         orb = (ORB)(istr.orb()) ;
         // Handle any tagged components (if applicable)
         if (minor > 0) 
