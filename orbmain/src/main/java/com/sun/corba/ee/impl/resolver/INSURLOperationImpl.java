@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.resolver;
 
@@ -256,7 +257,7 @@ public class INSURLOperationImpl implements Operation
         while( iterator.hasNext( ) ) {
             IIOPEndpointInfo element = 
                 (IIOPEndpointInfo) iterator.next( );
-            IIOPAddress addr = IIOPFactories.makeIIOPAddress( element.getHost(), 
+            IIOPAddress addr = IIOPFactories.makeIIOPAddressLocalServer(element.getHost(),
                 element.getPort() );
             GIOPVersion giopVersion = GIOPVersion.getInstance( (byte)element.getMajor(), 
                                              (byte)element.getMinor());

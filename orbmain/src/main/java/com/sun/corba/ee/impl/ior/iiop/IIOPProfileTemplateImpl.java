@@ -87,7 +87,11 @@ public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase
         StringBuilder sb = new StringBuilder() ;
         sb.append( "IIOPProfileTemplateImpl[giopVersion=") ;
         sb.append(giopVersion.getMajor()).append('.').append(giopVersion.getMinor()) ;
-        sb.append( " primary=" ) ;
+        sb.append( " primary");
+        if(primary instanceof IIOPAddressImplLocalServer) {
+            sb.append("[local]");
+        }
+        sb.append("=") ;
         sb.append(primary.getHost()).append(':').append(primary.getPort()) ;
         sb.append( ']' ) ;
         return sb.toString() ;

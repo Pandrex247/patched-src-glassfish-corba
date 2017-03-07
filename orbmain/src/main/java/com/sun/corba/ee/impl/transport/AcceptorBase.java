@@ -170,7 +170,7 @@ public abstract class AcceptorBase
         if (iterator.hasNext()) {
             // NEVER create an AlternateIIOPAddress for an SSL acceptor!
             if (!type.startsWith( SocketInfo.SSL_PREFIX )) {
-                IIOPAddress iiopAddress = IIOPFactories.makeIIOPAddress(hname, port);
+                IIOPAddress iiopAddress = IIOPFactories.makeIIOPAddressLocalServer(hname, port);
                 AlternateIIOPAddressComponent iiopAddressComponent = 
                     IIOPFactories.makeAlternateIIOPAddressComponent(iiopAddress);
                 while (iterator.hasNext()) {

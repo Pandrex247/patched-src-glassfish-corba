@@ -115,7 +115,7 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
         maxSize = Math.max(DEFAULT_MINIMUM_THREAD_POOL, maxSize);
         
         threadPool = new ThreadPoolExecutor(maxSize, maxSize, timeout, TimeUnit.MILLISECONDS, 
-                new LinkedBlockingQueue<Runnable>(maxSize * 100), 
+                new LinkedBlockingQueue<Runnable>(Math.max(maxSize * 100, Integer.MAX_VALUE)),
                 new ORBThreadFactory(name, tg, defaultClassLoader, false));
         threadPool.allowCoreThreadTimeOut(true);
         for(int ii = 0; ii < minSize; ++ii) {
