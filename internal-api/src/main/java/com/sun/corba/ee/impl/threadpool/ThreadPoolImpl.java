@@ -111,16 +111,12 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
         name = threadpoolName;
         this.tg = tg;
         this.classLoader = defaultClassLoader;
-        minSize = Math.max(minSize, 0);
+        minSize = Math.max(minSize, DEFAULT_MINIMUM_THREAD_POOL / 2);
         maxSize = Math.max(DEFAULT_MINIMUM_THREAD_POOL, maxSize);
         
-        threadPool = new ThreadPoolExecutor(maxSize, maxSize, timeout, TimeUnit.MILLISECONDS, 
+        threadPool = new ThreadPoolExecutor(minSize, maxSize, timeout, TimeUnit.MILLISECONDS,
                 new LinkedBlockingQueue<Runnable>(Math.max(maxSize * 100, Integer.MAX_VALUE)),
                 new ORBThreadFactory(name, tg, defaultClassLoader, false));
-        threadPool.allowCoreThreadTimeOut(true);
-        for(int ii = 0; ii < minSize; ++ii) {
-            threadPool.prestartCoreThread();
-        }
         // TODO register with gmbal
     }
 

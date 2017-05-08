@@ -37,22 +37,19 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016-2017] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.spi.ior;
 
 import java.util.List ;
 import java.util.Iterator ;
 
-import com.sun.corba.ee.spi.orb.ORBVersion ;
-
-import com.sun.corba.ee.spi.ior.iiop.GIOPVersion ;
 import com.sun.corba.ee.spi.ior.iiop.IIOPProfile ;
 
 import com.sun.corba.ee.spi.orb.ORB ;
 
 import org.glassfish.gmbal.ManagedData ;
 import org.glassfish.gmbal.ManagedAttribute ;
-import org.glassfish.gmbal.InheritedAttribute ;
 import org.glassfish.gmbal.Description ;
 
 /** An IOR is represented as a list of profiles.
@@ -100,6 +97,12 @@ public interface IOR extends List<TaggedProfile>, Writeable, MakeImmutable
      * and each profile is equivalent to the corresponding profile.
      */
     boolean isEquivalent(IOR ior) ;
+
+    /**
+     * used for multi-homed hosts
+     * @return stale is the connection != saved
+     */
+    boolean isStale();
 
     /** Return the IORTemplate for this IOR.  This is simply a list
      * of all TaggedProfileTemplates derived from the TaggedProfiles

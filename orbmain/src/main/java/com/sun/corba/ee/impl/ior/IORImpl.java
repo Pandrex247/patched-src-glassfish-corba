@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016-2017] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.ior;
 
@@ -288,6 +289,16 @@ public class IORImpl extends IdentifiableContainerBase<TaggedProfile>
         }
 
         return myIterator.hasNext() == otherIterator.hasNext() ; 
+    }
+
+    @Override
+    public boolean isStale() {
+        for(TaggedProfile profile : this) {
+            if(profile.isStale()) {
+                return true;
+            }
+        }
+        return false;
     }
 
     private void initializeIORTemplateList() 

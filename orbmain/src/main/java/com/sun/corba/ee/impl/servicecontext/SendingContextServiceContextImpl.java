@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+// Portions Copyright [2016-2017] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.servicecontext;
 
@@ -72,6 +73,11 @@ public class SendingContextServiceContextImpl extends ServiceContextBase
     public int getId() 
     { 
         return SERVICE_CONTEXT_ID ; 
+    }
+
+    @Override
+    public boolean isStale() {
+        return ior.isStale();
     }
 
     public void writeData( OutputStream os ) 

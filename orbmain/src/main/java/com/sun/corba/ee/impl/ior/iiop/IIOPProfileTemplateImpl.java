@@ -37,7 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-// Portions Copyright [2016] [Payara Foundation and/or its affiliates]
+// Portions Copyright [2016-2017] [Payara Foundation and/or its affiliates]
 
 package com.sun.corba.ee.impl.ior.iiop;
 
@@ -89,7 +89,9 @@ public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase
         sb.append(giopVersion.getMajor()).append('.').append(giopVersion.getMinor()) ;
         sb.append( " primary");
         if(primary instanceof IIOPAddressImplLocalServer) {
-            sb.append("[local]");
+            IIOPAddressImplLocalServer localPrimary = (IIOPAddressImplLocalServer)primary;
+            sb.append(String.format("[origDelegateHost = %s]", localPrimary.getDelegateHost()));
+            sb.append("[LOCAL]");
         }
         sb.append("=") ;
         sb.append(primary.getHost()).append(':').append(primary.getPort()) ;
