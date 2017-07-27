@@ -302,22 +302,22 @@ public abstract class IIOPFactories {
      * @return IIOP Address
      */
     public static IIOPAddress makeIIOPAddressLocalServer(ORB orb, String host, int port) {
-        return isInitialHostSpecified(orb)? new IIOPAddressImpl(host, port) : new IIOPAddressImplLocalServer(host, port);
+        return isMultiHomedHostOverride(orb, host)?
+                new IIOPAddressImplLocalServer(host, port) : new IIOPAddressImpl(host, port);
     }
 
     public static IIOPAddress makeIIOPAddress(InputStream is) {
         return new IIOPAddressImpl(is);
     }
     
-    public static IIOPAddress makeIIOPAddress( InputStream is, ORB orb ) 
+    public static IIOPAddress makeIIOPAddress( InputStream is, ORB orb )
     {
         IIOPAddressImpl impl = new IIOPAddressImpl(is);
-        if(isInitialHostSpecified(orb) && orb.isLocalHost(impl.getHost())) {
-            return new IIOPAddressImplLocalServer(impl);
-        }
-        else {
-            return impl;
-        }
+        return isMultiHomedHostOverride(orb, impl.getHost())? new IIOPAddressImplLocalServer(impl) : impl;
+    }
+
+    static boolean isMultiHomedHostOverride(ORB orb, String host) {
+        return !isInitialHostSpecified(orb) && orb.isLocalHost(host);
     }
 
     static boolean isInitialHostSpecified(ORB orb) {
