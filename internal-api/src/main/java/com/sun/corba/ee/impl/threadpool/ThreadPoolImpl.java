@@ -145,8 +145,8 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
         private Thread newThreadHelper(Runnable r, ClassLoader cl) {
             Thread t = new Thread(group, r, String.format("%s-%d", namePrefix, threadNumber.getAndIncrement()), 0);
             t.setContextClassLoader(cl);
-            if (t.isDaemon()) {
-                t.setDaemon(false);
+            if (!group.isDaemon()) {
+                t.setDaemon(true);
             }
             if (t.getPriority() != Thread.NORM_PRIORITY) {
                 t.setPriority(Thread.NORM_PRIORITY);
