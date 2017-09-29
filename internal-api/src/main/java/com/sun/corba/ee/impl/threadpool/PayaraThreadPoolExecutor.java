@@ -107,8 +107,9 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
                 return;
             }
         }
-        // otherwise, try the non-core threads
-        if (addWorker(command, false)) {
+        // otherwise, try the non-core threads only if approximate number of idle threads
+        // are maxed out
+        if ((getActiveCount() < getMaximumPoolSize()) && addWorker(command, false)) {
             return;
         }
         c = ctl.get();
