@@ -50,13 +50,15 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 /**
- * This class provides a more suitable implementation of ThreadPoolExecutor
+ * This class provides a more suitable implementation of ThreadPoolExecutor.
  * Stock implementation prefers to queue workers when current threads >= core
- * threads however, this implementation will go up to the max threads first,
- * then will start to queue work items
+ * threads, however, this implementation will check if the pool is busy,
+ * and if it is, it will go up to the max threads,
+ * Otherwise it will start to queue work items
  *
- * This will provide something that's as close to the previous implementation as
- * possible
+ * This will provide something that's as close to the previous CORBA
+ * thread pool implementation as possible without deadlocks present
+ * in the old thread pool implementation
  *
  * @author lprimak
  */
@@ -88,9 +90,18 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     /**
-     * taken from it's parent class
-     * reversed the order of operations,
-     * so threads up to maximum are created, before starting to queue
+     * taken from ThreadPoolExecutor (parent class)
+     * changed the order of operations.
+     * Core pool size acts as the minimum pool size
+     *
+     * First, if the number of threads (workers) are less than core pool size,
+     * then add a new thread and execute the task
+     *
+     * Second, if the core pool size is full, and all worker threads are currently
+     * busy and processing other requests, then add a new thread up to max thread pool
+     *
+     * Third, if the thread pool is maxed out, or there are idle workers that can be reused,
+     * queue a new task
      * 
      * @param command
      */
@@ -107,13 +118,15 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
                 return;
             }
         }
-        // otherwise, try the non-core threads only if approximate number of idle threads
-        // are maxed out
+
+        // Second, try creating a non-core thread only if approximate number of busy / active threads
+        // are already maxed out, otherwise proceed to Third (queue)
         if ((getActiveCount() > (workerCountOf(c) - 1)) && addWorker(command, false)) {
             return;
         }
+
+        // Third, try to queue
         c = ctl.get();
-        // now try to queue
         if (isRunning(c) && getQueue().offer(command)) {
             int recheck = ctl.get();
             if (!isRunning(recheck) && remove(command)) {
