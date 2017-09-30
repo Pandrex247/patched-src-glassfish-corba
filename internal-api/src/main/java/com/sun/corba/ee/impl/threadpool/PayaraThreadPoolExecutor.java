@@ -40,6 +40,7 @@
 package com.sun.corba.ee.impl.threadpool;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.ThreadFactory;
@@ -135,6 +136,9 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
                 addWorker(null, false);
             }
         }
+        else if(isRunning(c)) {
+            reject(command);
+        }
     }
 
     private int workerCountOf(int c) {
@@ -144,6 +148,9 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
     private boolean addWorker(Runnable command, boolean b) {
         try {
             return (Boolean) addWorkerMethod.invoke(this, command, b);
+        }
+        catch(InvocationTargetException ex) {
+            throw new RuntimeException(ex.getCause());
         } catch (ReflectiveOperationException ex) {
             log.log(Level.SEVERE, "Cannot call addWorker()", ex);
             throw new IllegalStateException(ex);
@@ -157,6 +164,9 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
     private void reject(Runnable command) {
         try {
             rejectMethod.invoke(this, command);
+        }
+        catch(InvocationTargetException ex) {
+            throw new RuntimeException(ex.getCause());
         } catch (ReflectiveOperationException ex) {
             log.log(Level.SEVERE, "Cannot call rejectMethod()", ex);
             throw new IllegalStateException(ex);
