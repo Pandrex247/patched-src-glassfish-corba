@@ -45,6 +45,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.locks.LockSupport;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import static junit.framework.Assert.assertEquals;
@@ -104,14 +105,14 @@ public class PayaraThreadPoolTest {
 
     @Test
     public void minConcurrentThreadsLimit() {
-        newExecutorTest(10, 20, 500, 50, false);
+        newExecutorTest(10, 20, 500, 9, false);
         assertEquals("Largest Pool Size", 10, executor.getLargestPoolSize());
         assertEquals("Core Pool Size", 10, executor.getCorePoolSize());
     }
 
 
     private void newExecutorTest(int min, int max, int iterations, int numConcurrent, final boolean sleepAfterWorkerRan) {
-        executor = new PayaraThreadPoolExecutor(min, max, 0, TimeUnit.SECONDS, new LinkedBlockingDeque<Runnable>(),
+        executor = new PayaraThreadPoolExecutor(min, max, 0, TimeUnit.SECONDS,
                 new ThreadFactory() {
             @Override
             public Thread newThread(Runnable r) {
@@ -148,6 +149,12 @@ public class PayaraThreadPoolTest {
                 }
             }
             executor.execute(r);
+            if (!sleepAfterWorkerRan) {
+                // we want to demonstrate, that new threads are not spawned when idle threads are present. For that we need
+                // to put a little less pressure on the executor, because even that AtomicInteger.increment takes a bit of time, and
+                // we may run out of core threads.
+                LockSupport.parkNanos(50);
+            }
             ++scheduledTasks;
         }
         executor.shutdown();

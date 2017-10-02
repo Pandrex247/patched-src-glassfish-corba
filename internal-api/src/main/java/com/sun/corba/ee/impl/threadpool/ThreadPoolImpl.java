@@ -129,7 +129,7 @@ public class ThreadPoolImpl extends AbstractThreadPool implements ThreadPool {
 
     private ThreadPoolExecutor createTPE(int minSize, int maxSize, long timeout) {
         return new PayaraThreadPoolExecutor(minSize, maxSize, timeout, TimeUnit.MILLISECONDS,
-                new LinkedBlockingQueue<Runnable>(), new ORBThreadFactory(name, tg, classLoader, false));
+               new ORBThreadFactory(name, tg, classLoader, false));
     }
 
     static class ORBThreadFactory implements ThreadFactory {
