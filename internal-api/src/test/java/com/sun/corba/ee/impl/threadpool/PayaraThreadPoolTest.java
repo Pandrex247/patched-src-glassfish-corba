@@ -39,7 +39,6 @@
  */
 package com.sun.corba.ee.impl.threadpool;
 
-import java.util.concurrent.LinkedBlockingDeque;
 import java.util.concurrent.RejectedExecutionHandler;
 import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
@@ -105,11 +104,17 @@ public class PayaraThreadPoolTest {
 
     @Test
     public void minConcurrentThreadsLimit() {
-        newExecutorTest(10, 20, 500, 9, false);
+        newExecutorTest(10, 20, 500, 50, false);
         assertEquals("Largest Pool Size", 10, executor.getLargestPoolSize());
         assertEquals("Core Pool Size", 10, executor.getCorePoolSize());
     }
 
+    @Test
+    public void minConcurrentThreadsLimit2() {
+        newExecutorTest(10, 20, 500, 9, false);
+        assertEquals("Largest Pool Size", 10, executor.getLargestPoolSize());
+        assertEquals("Core Pool Size", 10, executor.getCorePoolSize());
+    }
 
     private void newExecutorTest(int min, int max, int iterations, int numConcurrent, final boolean sleepAfterWorkerRan) {
         executor = new PayaraThreadPoolExecutor(min, max, 0, TimeUnit.SECONDS,

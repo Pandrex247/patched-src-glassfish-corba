@@ -40,8 +40,8 @@
 package com.sun.corba.ee.impl.threadpool;
 
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.Objects;
+import java.util.Queue;
 import java.util.concurrent.BlockingQueue;
 import java.util.concurrent.LinkedTransferQueue;
 import java.util.concurrent.RejectedExecutionHandler;
@@ -49,6 +49,7 @@ import java.util.concurrent.ThreadFactory;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TransferQueue;
+import lombok.experimental.Delegate;
 
 /**
  * This class provides a more suitable implementation of ThreadPoolExecutor.
@@ -62,12 +63,11 @@ import java.util.concurrent.TransferQueue;
  * in the old thread pool implementation.
  *
  * @author pdudits
+ * @author lprimak
+ *
  * @see <a href="https://dzone.com/articles/scalable-java-thread-pool-executor">Article describing this approach (Workaround #2)</a>
  */
 public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
-    private WorkItemQueue queue;
-    private final QueueingRejectionHandler rejectionHandler = new QueueingRejectionHandler();
-
     public PayaraThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit, ThreadFactory factory) {
         super(corePoolSize, maximumPoolSize, keepAliveTime, unit, new WorkItemQueue(), factory);
         this.queue = (WorkItemQueue) super.getQueue();
@@ -87,14 +87,14 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     private class QueueingRejectionHandler implements RejectedExecutionHandler {
-        private RejectedExecutionHandler downstream;
-
         @Override
         public void rejectedExecution(Runnable runnable, ThreadPoolExecutor threadPoolExecutor) {
             if (!putToQueue(runnable) && downstream != null) {
                 downstream.rejectedExecution(runnable, threadPoolExecutor);
             }
         }
+
+        private RejectedExecutionHandler downstream;
     }
 
     private boolean putToQueue(Runnable runnable) {
@@ -104,8 +104,6 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
     }
 
     private static class WorkItemQueue implements BlockingQueue<Runnable> {
-        private final TransferQueue<Runnable> delegate = new LinkedTransferQueue<>();
-
         @Override
         public boolean offer(Runnable runnable) {
             // to completement logic of ThreadPoolExecutor, we only succeed offering if there is a consumer to pass to.
@@ -113,129 +111,23 @@ public class PayaraThreadPoolExecutor extends ThreadPoolExecutor {
             return delegate.tryTransfer(runnable);
         }
 
-
         @Override
         public boolean offer(Runnable runnable, long l, TimeUnit timeUnit) throws InterruptedException {
             return delegate.tryTransfer(runnable, l, timeUnit);
         }
 
-        // the rest is just plain delegation
-        @Override
-        public boolean add(Runnable runnable) {
-            return delegate.add(runnable);
+
+        private interface Excludes {
+            boolean offer(Runnable runnable);
+            boolean offer(Runnable runnable, long l, TimeUnit timeUnit) throws InterruptedException;
         }
 
+        private interface RunnableTransferQueue extends BlockingQueue<Runnable>, TransferQueue<Runnable>, Queue<Runnable>, Collection<Runnable> { }
 
-        @Override
-        public void put(Runnable runnable) throws InterruptedException {
-            delegate.put(runnable);
-        }
-
-
-        @Override
-        public Runnable take() throws InterruptedException {
-            return delegate.take();
-        }
-
-        @Override
-        public Runnable poll(long l, TimeUnit timeUnit) throws InterruptedException {
-            return delegate.poll(l, timeUnit);
-        }
-
-        @Override
-        public int remainingCapacity() {
-            return delegate.remainingCapacity();
-        }
-
-        @Override
-        public boolean remove(Object o) {
-            return delegate.remove(o);
-        }
-
-        @Override
-        public boolean contains(Object o) {
-            return delegate.contains(o);
-        }
-
-        @Override
-        public int drainTo(Collection<? super Runnable> collection) {
-            return delegate.drainTo(collection);
-        }
-
-        @Override
-        public int drainTo(Collection<? super Runnable> collection, int i) {
-            return delegate.drainTo(collection, i);
-        }
-
-        @Override
-        public Runnable remove() {
-            return delegate.remove();
-        }
-
-        @Override
-        public Runnable poll() {
-            return delegate.poll();
-        }
-
-        @Override
-        public Runnable element() {
-            return delegate.element();
-        }
-
-        @Override
-        public Runnable peek() {
-            return delegate.peek();
-        }
-
-        @Override
-        public int size() {
-            return delegate.size();
-        }
-
-        @Override
-        public boolean isEmpty() {
-            return delegate.isEmpty();
-        }
-
-        @Override
-        public Iterator<Runnable> iterator() {
-            return delegate.iterator();
-        }
-
-        @Override
-        public Object[] toArray() {
-            return delegate.toArray();
-        }
-
-        @Override
-        public <T> T[] toArray(T[] ts) {
-            return delegate.toArray(ts);
-        }
-
-        @Override
-        public boolean containsAll(Collection<?> collection) {
-            return delegate.containsAll(collection);
-        }
-
-        @Override
-        public boolean addAll(Collection<? extends Runnable> collection) {
-            return delegate.addAll(collection);
-        }
-
-        @Override
-        public boolean removeAll(Collection<?> collection) {
-            return delegate.removeAll(collection);
-        }
-
-        @Override
-        public boolean retainAll(Collection<?> collection) {
-            return delegate.retainAll(collection);
-        }
-
-        @Override
-        public void clear() {
-            delegate.clear();
-        }
-
+        private final @Delegate(excludes = Excludes.class, types = RunnableTransferQueue.class) TransferQueue<Runnable> delegate = new LinkedTransferQueue<Runnable>();
     }
+
+
+    private final WorkItemQueue queue;
+    private final QueueingRejectionHandler rejectionHandler = new QueueingRejectionHandler();
 }
