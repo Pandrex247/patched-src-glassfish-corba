@@ -91,7 +91,7 @@ public class PayaraThreadPoolTest {
     @Test
     public void minPossibleThreads() {
         newExecutorTest(10, 100, 500, 50, true);
-        assertTrue("Largest Pool Size", executor.getLargestPoolSize() < 52 && executor.getLargestPoolSize() > 49);
+        assertTrue("Largest Pool Size", executor.getLargestPoolSize() < 52 && executor.getLargestPoolSize() > 48);
         assertEquals("Core Pool Size", 10, executor.getCorePoolSize());
     }
 
