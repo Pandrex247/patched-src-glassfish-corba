@@ -43,7 +43,7 @@
     <parent>
         <groupId>org.glassfish.corba</groupId>
         <artifactId>glassfish-corba</artifactId>
-        <version>4.0.1.payara-p10</version>
+        <version>4.1.1.payara-p1</version>
     </parent>
 
     <artifactId>glassfish-corba-orb</artifactId>
