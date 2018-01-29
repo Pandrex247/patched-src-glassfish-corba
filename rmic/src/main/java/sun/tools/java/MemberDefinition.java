@@ -25,16 +25,17 @@
 
 package sun.tools.java;
 
-import sun.tools.tree.Node;
-import sun.tools.tree.Vset;
-import sun.tools.tree.Expression;
-import sun.tools.tree.Statement;
-import sun.tools.tree.Context;
-import sun.tools.asm.Assembler;
+import org.glassfish.rmic.tools.asm.Assembler;
+import org.glassfish.rmic.tools.tree.Context;
+import org.glassfish.rmic.tools.tree.Expression;
+import org.glassfish.rmic.tools.tree.Node;
+import org.glassfish.rmic.tools.tree.Statement;
+import org.glassfish.rmic.tools.tree.Vset;
+
 import java.io.PrintStream;
-import java.util.Vector;
-import java.util.Map;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Vector;
 
 /**
  * This class defines a member of a Java class:
@@ -145,6 +146,10 @@ class MemberDefinition implements Constants {
         proxyCache.put(key, proxy);
 
         return proxy;
+    }
+
+    public String getMemberValueString(Environment env) throws ClassNotFound {
+        return null;
     }
 
     /**
