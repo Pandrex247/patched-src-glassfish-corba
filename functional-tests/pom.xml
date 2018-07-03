@@ -13,7 +13,7 @@
     <dependencies>
         <dependency>
             <groupId>org.glassfish.gmbal</groupId>
-            <artifactId>gmbal-api-only</artifactId>
+            <artifactId>gmbal</artifactId>
             <version>${gmbal-version}</version>
         </dependency>
         <dependency>
