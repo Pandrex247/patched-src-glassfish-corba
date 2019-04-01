@@ -1,8 +1,9 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
- *
+ * 
+ * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2019 [Payara Foundation and/or its affiliates.]
+ * 
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -312,7 +313,7 @@ abstract public class ORB {
             if (className == null)
                 className = defaultORBSingleton;
 
-            singleton = create_impl_with_systemclassloader(className);
+            singleton = create_impl(className);
         }
         return singleton;
     }
