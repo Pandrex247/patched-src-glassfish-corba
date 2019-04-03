@@ -49,7 +49,6 @@
     </parent>
 
     <artifactId>glassfish-corba-omgapi</artifactId>
-    <packaging>bundle</packaging>
     <name>Generated OMG APIs</name>
 
     <build>
