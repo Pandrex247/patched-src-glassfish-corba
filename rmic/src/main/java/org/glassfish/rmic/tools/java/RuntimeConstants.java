@@ -1,5 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+ * Copyright (c) 1998, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * Copyright (c) 1998-2018 Oracle and/or its affiliates. All rights reserved.
  *
@@ -82,7 +82,7 @@ public interface RuntimeConstants {
     /* Class File Constants */
     int JAVA_MAGIC                   = 0xcafebabe;
     int JAVA_MIN_SUPPORTED_VERSION   = 45;
-    int JAVA_MAX_SUPPORTED_VERSION   = 53;
+    int JAVA_MAX_SUPPORTED_VERSION   = 60;
     int JAVA_MAX_SUPPORTED_MINOR_VERSION = 0;
 
     /* Generate class file version for 1.1  by default */
