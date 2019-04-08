@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -48,11 +48,17 @@ import java.io.BufferedInputStream;
 import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.InputStream;
+import org.objectweb.asm.Opcodes;
 
 public class BinaryClassFactory implements ClassDefinitionFactory {
     @Override
     public ClassDefinition loadDefinition(InputStream is, Environment env) throws IOException {
         DataInputStream dis = new DataInputStream(new BufferedInputStream(is));
         return BinaryClass.load(env, dis, 0);
+    }
+
+    @Override
+    public int getMaxClassVersion() {
+        return Opcodes.V9;
     }
 }

@@ -80,7 +80,7 @@ class Main implements Constants {
         return getText(key, fixed, null);
     }
 
-    static String getText(String key, String fixed1, String fixed2) {
+    public static String getText(String key, String fixed1, String fixed2) {
         return getText(key, fixed1, fixed2, null);
     }
 

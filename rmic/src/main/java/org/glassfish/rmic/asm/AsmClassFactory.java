@@ -1,7 +1,5 @@
 /*
- * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- *
- * Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -88,7 +86,25 @@ public class AsmClassFactory implements ClassDefinitionFactory {
             }
             return latest;
         } catch (IllegalAccessException e) {
-            return Opcodes.ASM6;
+            return Opcodes.ASM7;
+        }
+    }
+
+    /**
+     * Returns the latest API supported by the active version of ASM.
+     * @return an integer value
+     */
+    static int getLatestClassVersion() {
+        try {
+            int latest = 0;
+            for (Field field : Opcodes.class.getDeclaredFields()) {
+                if (!field.getName().equals("V1_1") && field.getName().startsWith("V") && field.getType().equals(int.class)) {
+                    latest = Math.max(latest, field.getInt(Opcodes.class));
+                }
+            }
+            return latest;
+        } catch (IllegalAccessException e) {
+            return Opcodes.V11;
         }
     }
 
@@ -109,6 +125,11 @@ public class AsmClassFactory implements ClassDefinitionFactory {
         ClassReader classReader = new ClassReader(is);
         classReader.accept(visitor, ClassReader.SKIP_CODE | ClassReader.SKIP_DEBUG);
         return visitor.getDefinition();
+    }
+
+    @Override
+    public int getMaxClassVersion() {
+        return getLatestClassVersion();
     }
 
     class ClassDefinitionVisitor extends ClassVisitor {

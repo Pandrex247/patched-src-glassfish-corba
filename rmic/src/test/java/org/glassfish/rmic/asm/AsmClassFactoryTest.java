@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,12 +40,12 @@
 
 package org.glassfish.rmic.asm;
 
+import static org.hamcrest.MatcherAssert.assertThat;
+import static org.hamcrest.Matchers.equalTo;
+
 import org.glassfish.rmic.tools.java.ClassDefinitionFactoryTest;
 import org.junit.Test;
 import org.objectweb.asm.Opcodes;
-
-import static org.hamcrest.MatcherAssert.assertThat;
-import static org.hamcrest.Matchers.equalTo;
 
 public class AsmClassFactoryTest extends ClassDefinitionFactoryTest {
 
@@ -55,6 +55,11 @@ public class AsmClassFactoryTest extends ClassDefinitionFactoryTest {
 
     @Test
     public void canRetrieveLatestAsmVersion() {
-        assertThat(AsmClassFactory.getLatestVersion(), equalTo(Opcodes.ASM6));
+        assertThat(AsmClassFactory.getLatestVersion(), equalTo(Opcodes.ASM7));
+    }
+
+    @Test
+    public void canRetrieveLatestSupportedClassVersion() {
+        assertThat(AsmClassFactory.getLatestClassVersion(), equalTo(Opcodes.V13));
     }
 }

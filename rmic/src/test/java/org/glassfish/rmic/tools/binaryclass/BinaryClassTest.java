@@ -1,7 +1,7 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
  *
- * Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 2018, 2019, Oracle and/or its affiliates. All rights reserved.
  *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
@@ -40,7 +40,11 @@
 
 package org.glassfish.rmic.tools.binaryclass;
 
+import static org.junit.Assume.assumeTrue;
+
 import org.glassfish.rmic.tools.java.ClassDefinitionFactoryTest;
+import org.glassfish.rmic.tools.javac.BatchEnvironment;
+import org.junit.BeforeClass;
 
 public class BinaryClassTest extends ClassDefinitionFactoryTest {
 
@@ -48,5 +52,8 @@ public class BinaryClassTest extends ClassDefinitionFactoryTest {
         super(new BinaryClassFactory());
     }
 
-
+    @BeforeClass
+    public static void testIfBinaryClassSupported() {
+        assumeTrue(BatchEnvironment.mayUseBinaryClassFactory());
+    }
 }
