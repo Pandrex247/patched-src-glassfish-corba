@@ -1,8 +1,8 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
- * 
+ *
+ * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
@@ -43,6 +43,8 @@ package com.sun.corba.ee.impl.ior.iiop;
 
 import java.util.Iterator ;
 
+import com.sun.corba.ee.spi.ior.iiop.JavaCodebaseComponent;
+import com.sun.corba.ee.spi.transport.SocketInfo;
 import org.omg.IOP.TAG_INTERNET_IOP ;
 
 import org.omg.CORBA_2_3.portable.InputStream ;
@@ -70,7 +72,7 @@ import com.sun.corba.ee.spi.orb.ORB ;
  * If getMinorVersion==0, this does not contain any tagged components
  */
 public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase 
-    implements IIOPProfileTemplate 
+    implements IIOPProfileTemplate, SocketInfo
 {
     private ORB orb ;
     private GIOPVersion giopVersion ;
@@ -126,6 +128,30 @@ public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase
     public IIOPAddress getPrimaryAddress() 
     {
         return primary ;
+    }
+
+    @Override
+    public SocketInfo getPrimarySocketInfo() {
+        return this;
+    }
+
+    @Override
+    public String getType() {
+        return stream().anyMatch(this::isSslTaggedComponent) ? SocketInfo.SSL_PREFIX : SocketInfo.IIOP_CLEAR_TEXT;
+    }
+
+    private boolean isSslTaggedComponent(TaggedComponent component) {
+        return component instanceof JavaCodebaseComponent && ((JavaCodebaseComponent) component).getURLs().contains("https:");
+    }
+
+    @Override
+    public String getHost() {
+        return primary.getHost();
+    }
+
+    @Override
+    public int getPort() {
+        return primary.getPort();
     }
 
     public IIOPProfileTemplateImpl( ORB orb, GIOPVersion version, IIOPAddress primary ) 
