@@ -1193,6 +1193,19 @@ public class IIOPInputStream
         return currentObject;
     }
 
+    private boolean readDefaultWriteObjectCalled() throws IOException {
+        boolean sentDefaultWriteObjectCalled = readBoolean();
+        return notSpecialCase() && sentDefaultWriteObjectCalled;
+    }
+
+    private boolean notSpecialCase() {
+        return !isDateClassWorkaroundRequired();
+    }
+
+    private boolean isDateClassWorkaroundRequired() {
+        return currentClassDesc.getName().equals(Date.class.getName());
+    }
+
     @InfoMethod
     private void fullValueDescriptorsInfo( List<FullValueDescription>  fvds ) { }
 
