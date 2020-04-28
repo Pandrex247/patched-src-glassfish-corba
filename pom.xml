@@ -380,7 +380,7 @@
                             <configuration>
                                 <fileSets>
                                     <fileSet>
-                                        <sourceFile>${project.basedir}/../LICENSE.md</sourceFile>
+                                        <sourceFile>${project.basedir}/../LICENSE</sourceFile>
                                         <destinationFile>${project.build.outputDirectory}/META-INF/LICENSE</destinationFile>
                                     </fileSet>
                                     <fileSet>
