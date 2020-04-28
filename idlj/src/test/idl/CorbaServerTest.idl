@@ -1,0 +1,126 @@
+#
+# DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+#
+# Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+#
+# The contents of this file are subject to the terms of either the GNU
+# General Public License Version 2 only ("GPL") or the Common Development
+# and Distribution License("CDDL") (collectively, the "License").  You
+# may not use this file except in compliance with the License.  You can
+# obtain a copy of the License at
+# https://oss.oracle.com/licenses/CDDL+GPL-1.1
+# or LICENSE.txt.  See the License for the specific
+# language governing permissions and limitations under the License.
+#
+# When distributing the software, include this License Header Notice in each
+# file and include the License file at LICENSE.txt.
+#
+# GPL Classpath Exception:
+# Oracle designates this particular file as subject to the "Classpath"
+# exception as provided by Oracle in the GPL Version 2 section of the License
+# file that accompanied this code.
+#
+# Modifications:
+# If applicable, add the following below the License Header, with the fields
+# enclosed by brackets [] replaced by your own identifying information:
+# "Portions Copyright [year] [name of copyright owner]"
+#
+# Contributor(s):
+# If you wish your version of this file to be governed by only the CDDL or
+# only the GPL Version 2, indicate your decision by adding "[Contributor]
+# elects to include this software in this distribution under the [CDDL or GPL
+# Version 2] license."  If you don't indicate a single choice of license, a
+# recipient has the option to distribute your version of this file under
+# either the CDDL, the GPL Version 2 or to extend the choice of license to
+# its licensees as provided above.  However, if you add GPL Version 2 code
+# and therefore, elected the GPL Version 2 license, then the option applies
+# only if the new code is made subject to such option by the copyright
+# holder.
+#
+
+#include "orb.idl"
+
+module org {
+module glassfish {
+module idlj {
+
+  struct CORBAStruct {
+   	long l;
+    long long lll;		// The name is 3 chars long to avoid a JDK alignment bug.
+    string s;
+    any a;
+  };
+
+  struct AnyStruct {
+    any a;
+    CORBAStruct s;
+  };
+
+  union CORBAUnion switch ( long ) {
+  	case 0: boolean b;
+  	case 1: wstring w;
+  	case 2: string s;
+  	case 3: any a;
+  	case 4: CORBAStruct cs;
+  	default: long long lll;
+  };
+
+  enum CORBAEnum {
+    ONE,
+    TWO,
+    THREE
+  };
+
+  typedef sequence<CORBAStruct> CORBASeq;
+  typedef sequence<long> LongSeq;
+
+  interface CORBAServerTest {
+    exception AnException {};
+    exception MungedException {
+		#pragma ID MungedException "IDL:org/glassfish/idlj/MungedExRepid:1.0"
+    };
+
+    string test_primitive(in string s, in long l);
+
+    oneway void test_oneway(in string s, in long l);
+
+    any test_any(in any a);
+
+    void test_out(out string s);
+
+    void test_inout(inout any a);
+
+    void test_transaction();
+
+    void test_subject();
+
+    void test_exception() raises (AnException);
+
+    void test_exception2() raises (MungedException);
+
+    wstring test_widestring(in wstring w);
+
+    string test_timeout(in long timeout);
+
+    CORBA::WStringValue test_value(in CORBA::WStringValue w);
+
+    org::glassfish::idlj::CORBAUnion test_union(inout org::glassfish::idlj::CORBAUnion u);
+
+    org::glassfish::idlj::CORBAStruct test_struct(in org::glassfish::idlj::CORBAStruct s, out org::glassfish::idlj::CORBAStruct os);
+
+    org::glassfish::idlj::CORBASeq test_seq(inout org::glassfish::idlj::CORBASeq seq);
+
+    org::glassfish::idlj::LongSeq test_long_seq(inout org::glassfish::idlj::LongSeq seq);
+
+    Object test_POA(in string name);
+    void cleanup_POA(in string name);
+  };
+
+  interface DummyCORBAServer {
+	#pragma ID DummyCORBAServer "IDL:org/glassfish/idlj/MungedRepid:1.0"
+  };
+
+
+};
+};
+};

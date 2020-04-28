@@ -1,3 +1,45 @@
+<!--
+
+    DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
+
+    Copyright (c) 2018 Oracle and/or its affiliates. All rights reserved.
+
+    The contents of this file are subject to the terms of either the GNU
+    General Public License Version 2 only ("GPL") or the Common Development
+    and Distribution License("CDDL") (collectively, the "License").  You
+    may not use this file except in compliance with the License.  You can
+    obtain a copy of the License at
+    https://oss.oracle.com/licenses/CDDL+GPL-1.1
+    or LICENSE.txt.  See the License for the specific
+    language governing permissions and limitations under the License.
+
+    When distributing the software, include this License Header Notice in each
+    file and include the License file at LICENSE.txt.
+
+    GPL Classpath Exception:
+    Oracle designates this particular file as subject to the "Classpath"
+    exception as provided by Oracle in the GPL Version 2 section of the License
+    file that accompanied this code.
+
+    Modifications:
+    If applicable, add the following below the License Header, with the fields
+    enclosed by brackets [] replaced by your own identifying information:
+    "Portions Copyright [year] [name of copyright owner]"
+
+    Contributor(s):
+    If you wish your version of this file to be governed by only the CDDL or
+    only the GPL Version 2, indicate your decision by adding "[Contributor]
+    elects to include this software in this distribution under the [CDDL or GPL
+    Version 2] license."  If you don't indicate a single choice of license, a
+    recipient has the option to distribute your version of this file under
+    either the CDDL, the GPL Version 2 or to extend the choice of license to
+    its licensees as provided above.  However, if you add GPL Version 2 code
+    and therefore, elected the GPL Version 2 license, then the option applies
+    only if the new code is made subject to such option by the copyright
+    holder.
+
+-->
+
 <project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
     <modelVersion>4.0.0</modelVersion>
     <parent>
@@ -8,7 +50,7 @@
 
     <groupId>org.glassfish.corba</groupId>
     <artifactId>glassfish-corba</artifactId>
-    <version>4.1.1.payara-p3</version>
+    <version>4.2.0-b007</version>
     <name>ORB Implementation</name>
     <packaging>pom</packaging>
     <description>A CORBA ORB for Glassfish</description>
@@ -26,7 +68,7 @@
         <connection>scm:git:https://github.com/javaee/glassfish-corba.git</connection>
         <developerConnection>scm:git:ssh://git@github.com/javaee/glassfish-corba.git</developerConnection>
         <url>https://github.com/javaee/glassfish-corba</url>
-        <tag>HEAD</tag>
+        <tag>glassfish-corba-4.2.0-b007</tag>
     </scm>
 
     <distributionManagement>
@@ -69,25 +111,32 @@
     </modules>
 
     <properties>
-        <jdkVersion>1.7</jdkVersion>
+        <jdkVersion>1.8</jdkVersion>
+        <maven.compiler.source>${jdkVersion}</maven.compiler.source>
+        <maven.compiler.target>${jdkVersion}</maven.compiler.target>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <sonar.dynamicAnalysis>false</sonar.dynamicAnalysis>
-        <pfl-version>4.0.0-b008</pfl-version>
-        <gmbal-version>3.1.0-b001</gmbal-version>
+        <pfl-version>4.0.1-b003</pfl-version>
+        <gmbal-version>4.0.0-b002</gmbal-version>
     </properties>
 
     <dependencyManagement>
         <dependencies>
             <dependency>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.7.0</version>
+            </dependency>
+            <dependency>
                 <groupId>com.meterware.simplestub</groupId>
                 <artifactId>simplestub</artifactId>
-                <version>1.2.8</version>
+                <version>1.2.12</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
                 <groupId>junit</groupId>
                 <artifactId>junit</artifactId>
-                <version>4.7</version>
+                <version>4.12</version>
                 <scope>test</scope>
             </dependency>
             <dependency>
@@ -103,12 +152,8 @@
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.6.1</version>
-                <configuration>
-                    <source>${jdkVersion}</source>
-                    <target>${jdkVersion}</target>
-                </configuration>
+                <artifactId>maven-surefire-plugin</artifactId>
+                <version>2.20</version>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -159,7 +204,7 @@
                 <plugin>
                     <groupId>org.apache.felix</groupId>
                     <artifactId>maven-bundle-plugin</artifactId>
-                    <version>2.3.7</version>
+                    <version>3.3.0</version>
                     <extensions>true</extensions>
                 </plugin>
                 <plugin>
@@ -286,7 +331,7 @@
 
     <profiles>
 
-        <!-- ignore javadoc lint checks, enabled by default in JDK 1.8 (really want to run based on toolchain selection)
+        <!-- ignore javadoc lint checks, enabled by default in JDK 1.8 (really want to run based on toolchain selection) -->
         <profile>
             <id>disable-java8-doclint</id>
             <activation>
@@ -296,7 +341,6 @@
                 <additionalparam>-Xdoclint:none</additionalparam>
             </properties>
         </profile>
-        -->
 
         <!-- During release, always build with specified JDK -->
         <profile>

@@ -1,30 +1,31 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright (c) 1997-2017 Oracle and/or its affiliates. All rights reserved.
- * 
+ *
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1998-1999 IBM Corp. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
  * may not use this file except in compliance with the License.  You can
  * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
+ * https://oss.oracle.com/licenses/CDDL+GPL-1.1
+ * or LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
- * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
- * 
+ * file and include the License file at LICENSE.txt.
+ *
  * GPL Classpath Exception:
  * Oracle designates this particular file as subject to the "Classpath"
  * exception as provided by Oracle in the GPL Version 2 section of the License
  * file that accompanied this code.
- * 
+ *
  * Modifications:
  * If applicable, add the following below the License Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyright [year] [name of copyright owner]"
- * 
+ *
  * Contributor(s):
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
@@ -37,16 +38,29 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-/*
- * Licensed Materials - Property of IBM
- * RMI-IIOP v1.0
- * Copyright IBM Corp. 1998 1999  All Rights Reserved
- *
- * US Government Users Restricted Rights - Use, duplication or
- * disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
- */
 
 package com.sun.corba.ee.impl.io;
+
+import java.io.EOFException;
+import java.io.Externalizable;
+import java.io.IOException;
+import java.io.InvalidClassException;
+import java.io.InvalidObjectException;
+import java.io.NotActiveException;
+import java.io.ObjectInputValidation;
+import java.io.OptionalDataException;
+import java.io.StreamCorruptedException;
+import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
+import java.security.AccessController;
+import java.security.PrivilegedAction;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import javax.rmi.CORBA.ValueHandler;
 
 import com.sun.corba.ee.impl.javax.rmi.CORBA.Util;
 import com.sun.corba.ee.impl.misc.ClassInfoCache;
@@ -70,26 +84,6 @@ import org.omg.CORBA.TypeCode;
 import org.omg.CORBA.ValueMember;
 import org.omg.CORBA.portable.IndirectionException;
 import org.omg.CORBA.portable.ValueInputStream;
-
-import javax.rmi.CORBA.ValueHandler;
-import java.io.EOFException;
-import java.io.Externalizable;
-import java.io.IOException;
-import java.io.InvalidClassException;
-import java.io.InvalidObjectException;
-import java.io.NotActiveException;
-import java.io.ObjectInputValidation;
-import java.io.OptionalDataException;
-import java.io.StreamCorruptedException;
-import java.lang.reflect.Field;
-import java.lang.reflect.InvocationTargetException;
-import java.security.AccessController;
-import java.security.PrivilegedAction;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
 /**
  * IIOPInputStream is used by the ValueHandlerImpl to handle Java serialization
@@ -1130,7 +1124,7 @@ public class IIOPInputStream
                                 readFormatVersion();
 
                                 // Read defaultWriteObject indicator
-                                boolean calledDefaultWriteObject = readBoolean();
+                                boolean calledDefaultWriteObject = readDefaultWriteObjectCalled();
 
                                 readObjectState.beginUnmarshalCustomValue( this, 
                                     calledDefaultWriteObject, 
@@ -1191,6 +1185,19 @@ public class IIOPInputStream
             activeRecursionMgr.removeObject(offset);
         }
         return currentObject;
+    }
+
+    private boolean readDefaultWriteObjectCalled() throws IOException {
+        boolean sentDefaultWriteObjectCalled = readBoolean();
+        return notSpecialCase() && sentDefaultWriteObjectCalled;
+    }
+
+    private boolean notSpecialCase() {
+        return !isDateClassWorkaroundRequired();
+    }
+
+    private boolean isDateClassWorkaroundRequired() {
+        return currentClassDesc.getName().equals(Date.class.getName());
     }
 
     @InfoMethod

@@ -1,30 +1,30 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
- * 
+ *
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
  * may not use this file except in compliance with the License.  You can
  * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
+ * https://oss.oracle.com/licenses/CDDL+GPL-1.1
+ * or LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
- * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
- * 
+ * file and include the License file at LICENSE.txt.
+ *
  * GPL Classpath Exception:
  * Oracle designates this particular file as subject to the "Classpath"
  * exception as provided by Oracle in the GPL Version 2 section of the License
  * file that accompanied this code.
- * 
+ *
  * Modifications:
  * If applicable, add the following below the License Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyright [year] [name of copyright owner]"
- * 
+ *
  * Contributor(s):
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
@@ -37,6 +37,7 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+
 //
 // Created       : 2003 Apr 09 (Wed) 16:54:21 by Harold Carr.
 // Last Modified : 2004 Jan 31 (Sat) 10:06:37 by Harold Carr.
@@ -44,21 +45,20 @@
 
 package corba.systemexceptions;
 
-import javax.naming.InitialContext;
-import javax.rmi.CORBA.Util;
-
-import javax.activity.ActivityRequiredException;
-import javax.activity.ActivityCompletedException;
-import javax.activity.InvalidActivityException;
-
+import com.sun.corba.ee.impl.misc.ORBUtility;
 import corba.framework.Controller;
 import corba.hcks.C;
 import corba.hcks.U;
+import org.omg.CORBA.CompletionStatus;
+import org.omg.CORBA.ORB;
+import org.omg.CORBA.SystemException;
+import org.omg.PortableInterceptor.ClientRequestInfo;
+import org.omg.PortableInterceptor.ClientRequestInterceptor;
+import org.omg.PortableInterceptor.ForwardRequest;
+import org.omg.PortableInterceptor.ORBInitInfo;
+import org.omg.PortableInterceptor.ORBInitializer;
 
-import com.sun.corba.ee.impl.misc.ORBUtility;
-
-import org.omg.CORBA.*;
-import org.omg.PortableInterceptor.*;
+import javax.naming.InitialContext;
 
 public class Client extends org.omg.CORBA.LocalObject 
     implements ORBInitializer, ClientRequestInterceptor {
@@ -101,22 +101,6 @@ public class Client extends org.omg.CORBA.LocalObject
                     rmiiIPOA.invoke(i);
                 } catch (java.rmi.RemoteException re) {
                     SystemException se = (SystemException) re.getCause();
-                    if (se instanceof ACTIVITY_REQUIRED) {
-                        if (!(re instanceof ActivityRequiredException)) {
-                            throw new RuntimeException("Test Failed");
-                        }
-                        U.sop("javax.activity.ActivityRequiredException");
-                    } else if (se instanceof ACTIVITY_COMPLETED) {
-                        if (!(re instanceof ActivityCompletedException)) {
-                            throw new RuntimeException("Test Failed");
-                        }
-                        U.sop("javax.activity.ActivityCompletedException");
-                    } else if (se instanceof INVALID_ACTIVITY) {
-                        if (!(re instanceof InvalidActivityException)) {
-                            throw new RuntimeException("Test Failed");
-                        }
-                        U.sop("javax.activity.InvalidActivityException");
-                    }
                     String name = se.getClass().getName();
                     U.sop("name: " + name + ", minorCode: " + se.minor +
                           ", completed: " + 

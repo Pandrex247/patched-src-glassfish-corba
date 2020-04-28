@@ -1,30 +1,31 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
- * 
+ *
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
+ * Copyright (c) 1997-1999 IBM Corp. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
  * may not use this file except in compliance with the License.  You can
  * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
+ * https://oss.oracle.com/licenses/CDDL+GPL-1.1
+ * or LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
- * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
- * 
+ * file and include the License file at LICENSE.txt.
+ *
  * GPL Classpath Exception:
  * Oracle designates this particular file as subject to the "Classpath"
  * exception as provided by Oracle in the GPL Version 2 section of the License
  * file that accompanied this code.
- * 
+ *
  * Modifications:
  * If applicable, add the following below the License Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyright [year] [name of copyright owner]"
- * 
+ *
  * Contributor(s):
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
@@ -37,33 +38,22 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
-/*
- * COMPONENT_NAME: idl.toJava
- *
- * ORIGINS: 27
- *
- * Licensed Materials - Property of IBM
- * 5639-D57 (C) COPYRIGHT International Business Machines Corp. 1997, 1999
- * RMI-IIOP v1.0
- * US Government Users Restricted Rights - Use, duplication or
- * disclosure restricted by GSA ADP Schedule Contract with IBM Corp.
- */
 
 package com.sun.tools.corba.ee.idl.toJavaPortable;
 
 // NOTES:
-
-import java.io.File;
-import java.io.PrintWriter;
-import java.util.Enumeration;
-import java.util.Hashtable;
-import java.util.Vector;
 
 import com.sun.tools.corba.ee.idl.AttributeEntry;
 import com.sun.tools.corba.ee.idl.GenFileStream;
 import com.sun.tools.corba.ee.idl.InterfaceEntry;
 import com.sun.tools.corba.ee.idl.MethodEntry;
 import com.sun.tools.corba.ee.idl.SymtabEntry;
+
+import java.io.File;
+import java.io.PrintWriter;
+import java.util.Enumeration;
+import java.util.Hashtable;
+import java.util.Vector;
 
 /**
  *
@@ -360,17 +350,27 @@ public class Stub implements AuxGen
     stream.println ("     String str = s.readUTF ();");
     stream.println ("     String[] args = null;");
     stream.println ("     java.util.Properties props = null;");
-    stream.println ("     org.omg.CORBA.Object obj = org.omg.CORBA.ORB.init (args, props).string_to_object (str);");
+    stream.println ("     org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init (args, props);");
+    stream.println ("   try {");
+    stream.println ("     org.omg.CORBA.Object obj = orb.string_to_object (str);");
     stream.println ("     org.omg.CORBA.portable.Delegate delegate = ((org.omg.CORBA.portable.ObjectImpl) obj)._get_delegate ();");
     stream.println ("     _set_delegate (delegate);");
+    stream.println ("   } finally {");
+    stream.println ("     orb.destroy() ;");
+    stream.println ("   }");
     stream.println ("  }");
     stream.println ();
     stream.println ("  private void writeObject (java.io.ObjectOutputStream s) throws java.io.IOException");
     stream.println ("  {");
     stream.println ("     String[] args = null;");
     stream.println ("     java.util.Properties props = null;");
-    stream.println ("     String str = org.omg.CORBA.ORB.init (args, props).object_to_string (this);");
+    stream.println ("     org.omg.CORBA.ORB orb = org.omg.CORBA.ORB.init (args, props);");
+    stream.println ("   try {");
+    stream.println ("     String str = orb.object_to_string (this);");
     stream.println ("     s.writeUTF (str);");
+    stream.println ("   } finally {");
+    stream.println ("     orb.destroy() ;");
+    stream.println ("   }");
     stream.println ("  }");
   }
 

@@ -1,30 +1,30 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
- * 
+ *
+ * Copyright (c) 1997-2018 Oracle and/or its affiliates. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
  * may not use this file except in compliance with the License.  You can
  * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
+ * https://oss.oracle.com/licenses/CDDL+GPL-1.1
+ * or LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
- * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
- * 
+ * file and include the License file at LICENSE.txt.
+ *
  * GPL Classpath Exception:
  * Oracle designates this particular file as subject to the "Classpath"
  * exception as provided by Oracle in the GPL Version 2 section of the License
  * file that accompanied this code.
- * 
+ *
  * Modifications:
  * If applicable, add the following below the License Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyright [year] [name of copyright owner]"
- * 
+ *
  * Contributor(s):
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
@@ -37,14 +37,19 @@
  * only if the new code is made subject to such option by the copyright
  * holder.
  */
+
 package corba.framework;
 
-import test.Test;
-import test.Util;
-import java.io.*;
-import java.util.*;
 import com.sun.corba.ee.spi.misc.ORBConstants;
-import com.sun.corba.ee.spi.ior.iiop.GIOPVersion ;
+import com.sun.corba.ee.spi.JndiConstants;
+import test.Util;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.Hashtable;
+import java.util.Properties;
+import java.util.StringTokenizer;
+import java.util.Vector;
 
 /** Static library class to provide access to test configuration data.
  * This thing need to be further re-written to a class that is instantiated,
@@ -127,7 +132,7 @@ public class Options {
         emmaFile = props.getProperty("emma.coverage.out.file", "") ;
         orbClass = props.getProperty("org.omg.CORBA.ORBClass", "com.sun.corba.ee.impl.orb.ORBImpl" );
 
-        props.setProperty( "java.naming.factory.initial", "com.sun.jndi.cosnaming.CNCtxFactory" ) ;
+        props.setProperty( "java.naming.factory.initial", JndiConstants.COSNAMING_CONTEXT_FACTORY ) ;
     }
 
     private static String getPackageAsDir( CORBATest parent ) {

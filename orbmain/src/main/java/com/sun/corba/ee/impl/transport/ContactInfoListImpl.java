@@ -1,30 +1,30 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright (c) 1997-2011 Oracle and/or its affiliates. All rights reserved.
- * 
+ *
+ * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
  * may not use this file except in compliance with the License.  You can
  * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
+ * https://oss.oracle.com/licenses/CDDL+GPL-1.1
+ * or LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
- * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
- * 
+ * file and include the License file at LICENSE.txt.
+ *
  * GPL Classpath Exception:
  * Oracle designates this particular file as subject to the "Classpath"
  * exception as provided by Oracle in the GPL Version 2 section of the License
  * file that accompanied this code.
- * 
+ *
  * Modifications:
  * If applicable, add the following below the License Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyright [year] [name of copyright owner]"
- * 
+ *
  * Contributor(s):
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
@@ -349,18 +349,11 @@ public class ContactInfoListImpl implements ContactInfoList {
         final boolean isLocal = iiopProfile.isLocal() ;
 
         if (effectiveTargetIORContactInfoList == null) {
-            effectiveTargetIORContactInfoList = 
-                new ArrayList<ContactInfo>();
+            effectiveTargetIORContactInfoList = new ArrayList<>();
 
-            String hostname = 
-                ((IIOPProfileTemplate)iiopProfile.getTaggedProfileTemplate())
-                    .getPrimaryAddress().getHost().toLowerCase();
-            int    port     = 
-                ((IIOPProfileTemplate)iiopProfile.getTaggedProfileTemplate())
-                    .getPrimaryAddress().getPort();
-            // For use by "sticky manager" if one is registered.
-            primaryContactInfo = 
-                createContactInfo(SocketInfo.IIOP_CLEAR_TEXT, hostname, port);
+            IIOPProfileTemplate taggedProfileTemplate = (IIOPProfileTemplate) iiopProfile.getTaggedProfileTemplate();
+            SocketInfo socketInfo = taggedProfileTemplate.getPrimarySocketInfo();
+            primaryContactInfo = createContactInfo(socketInfo.getType(), socketInfo.getHost(), socketInfo.getPort());
 
             if (isLocal) {
                 // NOTE: IMPORTANT:
@@ -422,7 +415,7 @@ public class ContactInfoListImpl implements ContactInfoList {
         int port) {
 
         return new ContactInfoImpl(
-            orb, this, 
+            orb, this,
             // XREVISIT - See Base Line 62
             effectiveTargetIOR,
             orb.getORBData().getGIOPAddressDisposition(),

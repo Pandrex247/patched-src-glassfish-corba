@@ -1,30 +1,30 @@
 /*
  * DO NOT ALTER OR REMOVE COPYRIGHT NOTICES OR THIS HEADER.
- * 
- * Copyright (c) 1997-2010 Oracle and/or its affiliates. All rights reserved.
- * 
+ *
+ * Copyright (c) 1997-2020 Oracle and/or its affiliates. All rights reserved.
+ *
  * The contents of this file are subject to the terms of either the GNU
  * General Public License Version 2 only ("GPL") or the Common Development
  * and Distribution License("CDDL") (collectively, the "License").  You
  * may not use this file except in compliance with the License.  You can
  * obtain a copy of the License at
- * https://glassfish.dev.java.net/public/CDDL+GPL_1_1.html
- * or packager/legal/LICENSE.txt.  See the License for the specific
+ * https://oss.oracle.com/licenses/CDDL+GPL-1.1
+ * or LICENSE.txt.  See the License for the specific
  * language governing permissions and limitations under the License.
- * 
+ *
  * When distributing the software, include this License Header Notice in each
- * file and include the License file at glassfish/bootstrap/legal/LICENSE.txt.
- * 
+ * file and include the License file at LICENSE.txt.
+ *
  * GPL Classpath Exception:
  * Oracle designates this particular file as subject to the "Classpath"
  * exception as provided by Oracle in the GPL Version 2 section of the License
  * file that accompanied this code.
- * 
+ *
  * Modifications:
  * If applicable, add the following below the License Header, with the fields
  * enclosed by brackets [] replaced by your own identifying information:
  * "Portions Copyright [year] [name of copyright owner]"
- * 
+ *
  * Contributor(s):
  * If you wish your version of this file to be governed by only the CDDL or
  * only the GPL Version 2, indicate your decision by adding "[Contributor]
@@ -43,6 +43,8 @@ package com.sun.corba.ee.impl.ior.iiop;
 
 import java.util.Iterator ;
 
+import com.sun.corba.ee.spi.ior.iiop.JavaCodebaseComponent;
+import com.sun.corba.ee.spi.transport.SocketInfo;
 import org.omg.IOP.TAG_INTERNET_IOP ;
 
 import org.omg.CORBA_2_3.portable.InputStream ;
@@ -70,7 +72,7 @@ import com.sun.corba.ee.spi.orb.ORB ;
  * If getMinorVersion==0, this does not contain any tagged components
  */
 public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase 
-    implements IIOPProfileTemplate 
+    implements IIOPProfileTemplate, SocketInfo
 {
     private ORB orb ;
     private GIOPVersion giopVersion ;
@@ -126,6 +128,30 @@ public class IIOPProfileTemplateImpl extends TaggedProfileTemplateBase
     public IIOPAddress getPrimaryAddress() 
     {
         return primary ;
+    }
+
+    @Override
+    public SocketInfo getPrimarySocketInfo() {
+        return this;
+    }
+
+    @Override
+    public String getType() {
+        return stream().anyMatch(this::isSslTaggedComponent) ? SocketInfo.SSL_PREFIX : SocketInfo.IIOP_CLEAR_TEXT;
+    }
+
+    private boolean isSslTaggedComponent(TaggedComponent component) {
+        return component instanceof JavaCodebaseComponent && ((JavaCodebaseComponent) component).getURLs().contains("https:");
+    }
+
+    @Override
+    public String getHost() {
+        return primary.getHost();
+    }
+
+    @Override
+    public int getPort() {
+        return primary.getPort();
     }
 
     public IIOPProfileTemplateImpl( ORB orb, GIOPVersion version, IIOPAddress primary ) 
